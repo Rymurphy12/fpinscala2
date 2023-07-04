@@ -1,4 +1,4 @@
-package CH1
+package fpinscala2.CH1
 
 
 class Cafe{

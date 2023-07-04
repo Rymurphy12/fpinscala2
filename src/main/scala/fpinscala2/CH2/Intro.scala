@@ -1,4 +1,4 @@
-package CH2
+package fpinscala2.CH2
 
 // A comment !
 /* Another Comment */
