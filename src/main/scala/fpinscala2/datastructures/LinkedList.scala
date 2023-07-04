@@ -48,13 +48,11 @@ object List {
 
   // Exercise 3.4
   def drop[A](as: List[A], n: Int): List[A]  = {
-    if (n <= 0) 
-      as
-    else
-      (as, n) match {
-        case (Nil, _) => Nil
-        case (Cons(head, tail), num) => drop(tail, num - 1)
-      }
+    (as, n) match {
+      case (Nil, _) => Nil
+      case (lyst, num) if(num <= 0) => lyst
+      case (Cons(head, tail), num) => drop(tail, num - 1)
+    }
   }
 
   def sum(ints: List[Int]): Int = {
