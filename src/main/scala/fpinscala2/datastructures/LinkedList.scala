@@ -31,6 +31,20 @@ object List {
     println(dropWhile(tstLyst, x => x < 3))
     println(dropWhile(tstLyst, x => x < 0))
     println(dropWhile(tstLyst, x => x < 6))
+
+    // Exercise 3.8
+    // Prediction: This will return a List[List[Int]]
+    var foldResult = foldRight(List(1,2,3), Nil: List[Int], (x, y) => Cons(x, y))
+    println(foldResult)
+    // Result : I was wrong List[Int]. For some reason I was thinking the entire list
+    //          would be placed in the head position.
+    // Analysis: Fold Right can properly determine the resultig type by looking at the values
+    //           in both the collection and the accumulator
+
+    println(length(Nil))
+    println(length(List(1)))
+    println(length(List(1,2,3)))
+    println(reverse(List(1,2,3)))
   }
 
   // Exercise 3.2
@@ -79,6 +93,45 @@ object List {
     // on to discard
   }
 
+  // Exercise 3.7
+  // Answer: At least how foldRight is currently implemented there is no good way to do it.
+  // You could possible do a matching statement and return Nil if 0.0, however this will still
+  // return the final accumulated value and not zero like it should.
+
+  // Exercise 3.9
+  def length[A](as: List[A]): Int = {
+    foldRight(as, 0, (_, y) => y +1)
+  }
+
+  // Exercise 3.10
+  @annotation.tailrec
+  def foldLeft[A, B](as: List[A], acc: B, f: (B, A) => B): B = {
+    as match {
+      case Cons(x, y) => foldLeft(y, f(acc, x), f)
+      case Nil => acc
+    }
+  }
+
+  // Exercise 3.11 Part 1
+  def sumViaFoldLeft(ns: List[Int]): Int = {
+    foldLeft(ns, 0, _+_)
+  }
+
+  // Exercise 3.11 Part 2
+  def productViaFoldLeft(ds: List[Double]): Double = {
+    foldLeft(ds, 1.0, _*_)
+  }
+
+  // Exercise 3.11 Part 3
+  def lengthViaFoldLeft[A](as: List[A]): Int = {
+    foldLeft(as, 0, (acc, _) => acc + 1)
+  }
+
+  // Exercise 3.12
+  def reverse[A](as: List[A]): List[A] = {
+    foldLeft(as, Nil: List[A], (tl, hd) => Cons(hd, tl))
+  }
+
   def append[A](a1: List[A], a2: List[A]): List[A] = {
     a1 match {
       case Nil => a2
@@ -100,4 +153,20 @@ object List {
       case Cons(x, xs) => x * product(xs)
     }
   }
+
+  def foldRight[A,B](as: List[A], acc: B, f: (A, B) => B): B = {
+    as match {
+      case Nil  => acc
+      case Cons(x, xs) => f(x, foldRight(xs, acc, f))
+    }
+  }
+
+  def sumViaFoldRight(ns: List[Int]): Int = {
+    foldRight(ns, 0, (x,y) => x + y)
+  }
+
+  def productViaFoldRight(ns: List[Double]): Double = {
+    foldRight(ns, 1.0, _*_)
+  }
+
 }
