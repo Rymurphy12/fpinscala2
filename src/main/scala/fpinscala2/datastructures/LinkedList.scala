@@ -1,5 +1,7 @@
 package fpinscala2.datastructures
 
+import scala.compiletime.ops.boolean
+
 enum List[+A] {
   case Nil
   case Cons(head: A, tail: List[A])
@@ -40,15 +42,21 @@ object List {
     //          would be placed in the head position.
     // Analysis: Fold Right can properly determine the resultig type by looking at the values
     //           in both the collection and the accumulator
-
+    val lystInts = List(1,2,3)
+    val lystDouble = List(1.0, 2.0, 3.0)
+    val longerLyst = List(1,2,3,4,5,6,7,8)
     println(length(Nil))
     println(length(List(1)))
-    println(length(List(1,2,3)))
-    println(reverse(List(1,2,3)))
-    println(appendViaFoldLeft(List(1,2,3), List(4,5,6)))
-    println(appendViaFoldRight(List(1,2,3), List(4,5,6)))
-    val lystOfLysts = List(List(1,2,3), List(4,5,6), List(7,8))
+    println(length(lystInts))
+    println(reverse(lystInts))
+    println(appendViaFoldLeft(lystInts, List(4,5,6)))
+    println(appendViaFoldRight(lystInts, List(4,5,6)))
+    val lystOfLysts = List(lystInts, List(4,5,6), List(7,8))
     println(concatListOfList(lystOfLysts))
+    println(addOneList(lystInts))
+    println(listDoubleToListString(lystDouble).isInstanceOf[List[String]])
+    println(map(lystInts, x => x + 1))
+    println(filter(longerLyst, _ < 5))
   }
 
   // Exercise 3.2
@@ -164,6 +172,33 @@ object List {
     foldRightViaFoldLeft(llxs, Nil: List[A], (x, y) => appendViaFoldRight(x, y))
   }
 
+  // Exercise 3.16
+  def addOneList(ns: List[Int]): List[Int] = {
+    foldRightViaFoldLeft(ns, Nil: List[Int], (h, t) => Cons(h +1, t))
+  }
+
+  // Exercise 3.17
+  def listDoubleToListString(ds: List[Double]): List[String] = {
+    foldRightViaFoldLeft(ds, Nil: List[String], (h, t) => Cons(h.toString(), t))
+  }
+
+  // Exercise 3.18
+  def map[A, B](as: List[A], f: A => B): List[B] = {
+    foldRightViaFoldLeft(as, Nil: List[B], (x, y) => Cons(f(x), y))
+  }
+
+  // Exercise 3.19
+  def filter[A](as: List[A], f: A => Boolean): List[A] = {
+    @annotation.tailrec
+    def loop(as: List[A], acc: List[A]): List[A] = {
+        as match {
+          case Cons(h, t) if f(h) => loop(t, Cons(h, acc))
+          case Cons(_, t) => loop(t, acc)
+          case Nil => acc
+        }
+    }
+    loop(reverse(as), Nil: List[A])
+  }
   def append[A](a1: List[A], a2: List[A]): List[A] = {
     a1 match {
       case Nil => a2
