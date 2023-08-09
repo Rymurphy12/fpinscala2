@@ -132,6 +132,19 @@ object List {
     foldLeft(as, Nil: List[A], (tl, hd) => Cons(hd, tl))
   }
 
+  // Exercise 3.13
+  def foldRightViaFoldLeft[A,B](as: List[A], acc: B, f: (A, B) => B): B = {
+    // I Haven't confirmed the answer on this, but I seem to remember discovering 
+    // it was deceptively easy the first time arround
+    // I don't beleive we can implement foldleft by foldright as the case statements
+    // make adjust the sturcture impossible.
+    foldLeft(reverse(as), acc, (x, y) => f(y, x))
+    // Answer - I was half-correct/half-wrong. My answer for foldRightViaFoldLeft
+    // is correct but the second half is wrong. It can be done but the acc needs
+    // to be an identity function and the f needs to be a function that returns
+    // a function taht returns the answer. Truthfully, I would not have figure that out.
+  }
+
   def append[A](a1: List[A], a2: List[A]): List[A] = {
     a1 match {
       case Nil => a2
