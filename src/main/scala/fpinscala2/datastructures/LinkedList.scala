@@ -45,6 +45,10 @@ object List {
     println(length(List(1)))
     println(length(List(1,2,3)))
     println(reverse(List(1,2,3)))
+    println(appendViaFoldLeft(List(1,2,3), List(4,5,6)))
+    println(appendViaFoldRight(List(1,2,3), List(4,5,6)))
+    val lystOfLysts = List(List(1,2,3), List(4,5,6), List(7,8))
+    println(concatListOfList(lystOfLysts))
   }
 
   // Exercise 3.2
@@ -143,6 +147,21 @@ object List {
     // is correct but the second half is wrong. It can be done but the acc needs
     // to be an identity function and the f needs to be a function that returns
     // a function taht returns the answer. Truthfully, I would not have figure that out.
+  }
+
+  // Exercise 3.14 Pt1
+  def appendViaFoldLeft[A](a1: List[A], a2: List[A]): List[A] = {
+    foldLeft(reverse(a1), a2, (x, y) =>  Cons(y, x))
+  }
+
+  // Exercise 3.14 Pt2
+  def appendViaFoldRight[A](a1: List[A], a2: List[A]): List[A] = {
+    foldRightViaFoldLeft(a1, a2, (x, y) => Cons(x, y))
+  }
+
+  // Exercise 3.15
+  def concatListOfList[A](llxs: List[List[A]]): List[A] = {
+    foldRightViaFoldLeft(llxs, Nil: List[A], (x, y) => appendViaFoldRight(x, y))
   }
 
   def append[A](a1: List[A], a2: List[A]): List[A] = {
