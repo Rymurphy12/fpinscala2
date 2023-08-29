@@ -43,8 +43,11 @@ object List {
     // Analysis: Fold Right can properly determine the resultig type by looking at the values
     //           in both the collection and the accumulator
     val lystInts = List(1,2,3)
+    val lystIntsTwo = List(4,5,6)
     val lystDouble = List(1.0, 2.0, 3.0)
     val longerLyst = List(1,2,3,4,5,6,7,8)
+    val smallLystOne = List(1,2)
+    val smallLystTwo = List(4,5)
     println(length(Nil))
     println(length(List(1)))
     println(length(lystInts))
@@ -57,6 +60,15 @@ object List {
     println(listDoubleToListString(lystDouble).isInstanceOf[List[String]])
     println(map(lystInts, x => x + 1))
     println(filter(longerLyst, _ < 5))
+    println(filterViaFlatMap(longerLyst, _ < 5))
+    println(flatMap(lystInts, i => List(i, i)))
+    println(addTwoLists(lystInts, lystIntsTwo))
+    println(addTwoLists(lystInts, smallLystTwo))
+    println(addTwoLists(smallLystOne, lystIntsTwo))
+    println(hasSubsequence(lystInts, smallLystOne))
+    println(hasSubsequence(lystInts, List(3)))
+    println(hasSubsequence(lystInts, List(2,3,4)))
+    println(hasSubsequence(lystInts, Nil))
   }
 
   // Exercise 3.2
@@ -199,6 +211,66 @@ object List {
     }
     loop(reverse(as), Nil: List[A])
   }
+
+  // Exercise 3.20
+  def flatMap[A, B](as: List[A], f: A => List[B]): List[B] = {
+    foldRightViaFoldLeft(as, Nil: List[B], (x, acc) => appendViaFoldRight(f(x), acc))
+  }
+
+  // Exercise 3.21
+  def filterViaFlatMap[A](as: List[A], f: A => Boolean): List[A] = {
+    flatMap(as, x => x match {
+      case x if(f(x)) => List(x)
+      case _ => Nil
+    })
+  }
+
+  // Exercise 3.22
+  def addTwoLists(xs: List[Int], ys: List[Int]): List[Int] = {
+    @annotation.tailrec
+    def loop(as: List[Int], bs: List[Int], acc: List[Int]): List[Int] = {
+      (as, bs) match {
+        // Not sure about this behavior. I assumed if there if one list is longer
+        // we do not include it in the list as there is nothing to add it to
+        //case (Cons(h1, t1), Cons(h2, t2)) => loop(t1, t2, appendViaFoldRight(acc, List(h1 + h2))) // My Initial Answer
+        case (Cons(h1, t1), Cons(h2, t2)) => loop(t1, t2, Cons(h1 + h2, acc)) // Better Answer
+        case _ => acc
+      }
+    }
+    reverse(loop(xs, ys, Nil: List[Int]))
+  }
+
+  // Exercise 3.23
+  def zipWith[A, B](xs: List[A], ys: List[A], f: (A, A) => B): List[B] = {
+    @annotation.tailrec
+    def loop(as: List[A], bs: List[A], acc: List[B]): List[B] = {
+      (as, bs) match {
+        // Made similar assumptions as in 3.22
+        //case (Cons(h1, t1), Cons(h2, t2)) => loop(t1, t2, appendViaFoldRight(acc, List(f(h1, h2)))) // My Initial Answer
+        case (Cons(h1, t1), Cons(h2, t2)) => loop(t1, t2, Cons(f(h1, h2), acc)) // Better answer
+        case _ => acc
+      }
+    }
+    reverse(loop(xs, ys, Nil: List[B]))
+  }
+
+  // Exercise 3.24
+  @annotation.tailrec
+  def hasSubsequence[A](sup: List[A], sub: List[A]): Boolean = {
+    @annotation.tailrec
+    def hasMatch(checkedList: List[A], subToCheck: List[A]): Boolean = {
+      (checkedList, subToCheck) match {
+        case (Nil, Cons(_, _)) => false
+        case (_, Nil) => true
+        case (Cons(h1, t1), Cons(h2, t2)) => if(h1 != h2) false else hasMatch(t1, t2)
+      }
+    }
+    sup match {
+      case Nil => false
+      case Cons(_, t) => if(hasMatch(sup, sub)) true else hasSubsequence(t, sub)
+    }
+  }
+
   def append[A](a1: List[A], a2: List[A]): List[A] = {
     a1 match {
       case Nil => a2
